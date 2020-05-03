@@ -96,7 +96,11 @@ async def head(ctx, realmSlug: str, characterName: str):
     type(data["equipped_items"])
     for item in data["equipped_items"]:
         if item["slot"]["name"] == "Head":
-            await ctx.send("```Item slot: " + item["slot"]["name"] +"\nItem name: "+ item["name"] +  "\n" + item["level"]["display_string"] + item["stats"]["display_string"] + "```")
+            await ctx.send("```Item slot: " + item["slot"]["name"] +"\nItem name: "+ item["name"] +  "\n" + item["level"]["display_string"] + "\n" +
+            "Main stats: " + "\n" + 
+            item["stats"][0]["display"]["display_string"] + "\n" +
+            item["stats"][1]["display"]["display_string"] + "\n" + 
+            item["stats"][2]["display"]["display_string"] +  "```")
     
 
 bot.run(TOKEN)
