@@ -71,6 +71,7 @@ async def character(ctx, realmSlug: str, characterName: str):
     await ctx.send("```Character race: " + data_string["playable_race"]["name"]+ "```")
     await ctx.send("```Gender: " + data_string["gender"]["name"]+ "```")
     await ctx.send("```Faction: " + data_string["faction"]["name"]+ "```")
+  
     
 
 @bot.command(name='armory', help='Shows characters current gear with item level')
@@ -94,7 +95,8 @@ async def head(ctx, realmSlug: str, characterName: str):
     data = json.loads(r.text)
     type(data["equipped_items"])
     for item in data["equipped_items"]:
-        await ctx.send("```Item name: "+ item["name"] + "\nItem slot: " + item["slot"]["type"]["HEAD"] +"```")
+        if item["slot"]["name"] == "Head":
+            await ctx.send("```Item slot: " + item["slot"]["name"] +"\nItem name: "+ item["name"] +  "\n" + item["level"]["display_string"] + item["stats"]["display_string"] + "```")
     
 
 bot.run(TOKEN)
