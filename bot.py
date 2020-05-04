@@ -33,7 +33,7 @@ async def roll(ctx, number_of_dice: int, number_of_sides: int):
     ]
     await ctx.send(', '.join(dice))
 
-@bot.command(name='title', help='Get the current title of a character')
+@bot.command(name='title', help='Current title, type realm & character name')
 async def title(ctx, realmSlug: str, characterName: str):
     url = "https://eu.api.blizzard.com/profile/wow/character/%s/%s/titles?namespace=profile-eu&locale=en_GB&access_token=%s" % (
         realmSlug, characterName, AUTH_TOKEN
@@ -44,7 +44,7 @@ async def title(ctx, realmSlug: str, characterName: str):
     print(data_string["active_title"]["name"])
     await ctx.send("```" + characterName.capitalize() + " " + data_string["active_title"]["name"]+ "```")
 
-@bot.command(name='titles', help="Shows every title of a character")
+@bot.command(name='titles', help="Shows every title of a character, type realm & character name")
 async def titles(ctx, realmSlug: str, characterName: str):
     url = "https://eu.api.blizzard.com/profile/wow/character/%s/%s/titles?namespace=profile-eu&locale=en_GB&access_token=%s" % (
         realmSlug, characterName, AUTH_TOKEN
@@ -57,24 +57,26 @@ async def titles(ctx, realmSlug: str, characterName: str):
         print(title["name"])
         await ctx.send("```" + characterName.capitalize() + " " + title["name"]+ "```")
 
-@bot.command(name='character', help='Shows basic character info')
+@bot.command(name='character', help='Shows basic character info, type realm & character name')
 async def character(ctx, realmSlug: str, characterName: str):
-    url = "https://eu.api.blizzard.com/profile/wow/character/%s/%s/appearance?namespace=profile-eu&locale=en_GB&access_token=%s" % (
+    url = "https://eu.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-eu&locale=en_GB&access_token=%s" % (
         realmSlug, characterName, AUTH_TOKEN
     )
     
     data = requests.get(url)
     data_string = json.loads(data.text)
-    await ctx.send("```Character name: " + data_string["character"]["name"] + "```")
-    await ctx.send("```Class: " + data_string["playable_class"]["name"]+ "```")
-    await ctx.send("```Class specialization: " + data_string["active_spec"]["name"]+ "```")
-    await ctx.send("```Character race: " + data_string["playable_race"]["name"]+ "```")
-    await ctx.send("```Gender: " + data_string["gender"]["name"]+ "```")
-    await ctx.send("```Faction: " + data_string["faction"]["name"]+ "```")
+    await ctx.send("```Character name: " + data_string["name"] + "\n" +
+    "Class: " + data_string["character_class"]["name"]+ "\n" +
+    "Class specialization: " + data_string["active_spec"]["name"]+ "\n" +
+    "Character race: " + data_string["race"]["name"]+ "\n" +
+    "Gender: " + data_string["gender"]["name"]+ "\n" +
+    "Guild: " + data_string["guild"]["name"] + "\n" +
+    "Faction: " + data_string["faction"]["name"]+ "```")
+    
   
     
 
-@bot.command(name='armory', help='Shows characters current gear with item level')
+@bot.command(name='armory', help='Shows characters current gear, type realm & character name')
 async def armory(ctx, realmSlug: str, characterName: str):
     url = "https://eu.api.blizzard.com/profile/wow/character/%s/%s/equipment?namespace=profile-eu&locale=en_GB&access_token=%s" % (
         realmSlug, characterName, AUTH_TOKEN
@@ -86,8 +88,8 @@ async def armory(ctx, realmSlug: str, characterName: str):
     for item in data["equipped_items"]:
         await ctx.send("```Item name: "+ item["name"] + "\nItem slot: " + item["slot"]["name"] + "\n" + item["level"]["display_string"] + "```")
         
-@bot.command(name='head', help='Shows info of head slot item')
-async def head(ctx, realmSlug: str, characterName: str):
+@bot.command(name='armour', help='Shows single item, type realm, character name & item type(capital letter)')
+async def armourpiece(ctx, realmSlug: str, characterName: str, piece: str):
     url = "https://eu.api.blizzard.com/profile/wow/character/%s/%s/equipment?namespace=profile-eu&locale=en_GB&access_token=%s" % (
         realmSlug, characterName, AUTH_TOKEN
     )
@@ -95,12 +97,30 @@ async def head(ctx, realmSlug: str, characterName: str):
     data = json.loads(r.text)
     type(data["equipped_items"])
     for item in data["equipped_items"]:
-        if item["slot"]["name"] == "Head":
-            await ctx.send("```Item slot: " + item["slot"]["name"] +"\nItem name: "+ item["name"] +  "\n" + item["level"]["display_string"] + "\n" +
-            "Main stats: " + "\n" + 
-            item["stats"][0]["display"]["display_string"] + "\n" +
-            item["stats"][1]["display"]["display_string"] + "\n" + 
-            item["stats"][2]["display"]["display_string"] +  "```")
-    
-
+        if item["slot"]["name"] == "%s" % (piece):
+            print(item["slot"]["name"])
+            if item["slot"]["name"] == "Head" or item["slot"]["name"]== "Chest" or item["slot"]["name"] == "Shoulders":
+                await ctx.send("```Item slot: " + item["slot"]["name"] +"\nItem name: "+ item["name"] +  "\n" + item["level"]["display_string"] + "\n" + "\n" +
+                "Main stats: " + "\n" + "\n" +
+                item["stats"][0]["display"]["display_string"] + "\n" +
+                item["stats"][1]["display"]["display_string"] + "\n" + 
+                item["stats"][2]["display"]["display_string"] + "\n" + "\n" +
+                item["azerite_details"]["selected_powers"][0]["spell_tooltip"]["spell"]["name"] + "\n" +
+                item["azerite_details"]["selected_powers"][0]["spell_tooltip"]["description"] + "\n" + "\n" +
+                item["azerite_details"]["selected_powers"][1]["spell_tooltip"]["spell"]["name"] + "\n" +
+                item["azerite_details"]["selected_powers"][1]["spell_tooltip"]["description"] + "\n" + "\n" +
+                item["azerite_details"]["selected_powers"][2]["spell_tooltip"]["spell"]["name"] + "\n" +
+                item["azerite_details"]["selected_powers"][2]["spell_tooltip"]["description"] + "\n" + "\n" +
+                item["azerite_details"]["selected_powers"][3]["spell_tooltip"]["spell"]["name"] + "\n" +
+                item["azerite_details"]["selected_powers"][3]["spell_tooltip"]["description"] + "```")
+            else:              
+                await ctx.send("```Item slot: " + item["slot"]["name"] +"\nItem name: "+ item["name"] +  "\n" + item["level"]["display_string"] + "\n" + "\n" +
+                "Main stats: " + "\n" + "\n" +
+                item["stats"][0]["display"]["display_string"] + "\n" +
+                item["stats"][1]["display"]["display_string"] + "\n" + 
+                item["stats"][2]["display"]["display_string"] + "\n" + "\n" +
+                "Secondary stats: " + "\n" + "\n" +
+                item["stats"][3]["display"]["display_string"] + "\n" + 
+                item["stats"][4]["display"]["display_string"] +  "```")
+ 
 bot.run(TOKEN)
